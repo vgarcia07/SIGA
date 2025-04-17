@@ -13,6 +13,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
+
 
 // Main Component
 import { AppComponent }                    from './app.component';
@@ -29,12 +31,14 @@ import { NgScrollbarModule, NG_SCROLLBAR_OPTIONS } from 'ngx-scrollbar';
 
 // Pages
 import { HomePage }          from './pages/home/home';
+import { DucaRgComponent }   from './pages/duca/duca-rg/duca-rg.component';
 
 // Error
 import { ErrorPage }          from './pages/error/error';
 import { LoginPage } from './pages/login/login';
 import { ModalModule } from 'ngx-bootstrap/modal';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+
 
 @NgModule({
   declarations: [
@@ -46,6 +50,8 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
     PanelComponent,
     FloatSubMenuComponent,
     ThemePanelComponent,
+    DucaRgComponent, // Debe estar aquí
+
     
     HomePage,
     LoginPage,
@@ -59,6 +65,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
     ReactiveFormsModule,
     NgScrollbarModule,
     FormsModule,
+    ReactiveFormsModule,
     ModalModule.forRoot(),
     MatInputModule,
     MatButtonModule,

@@ -1,5 +1,8 @@
 import { Component, Input, Output, EventEmitter, Renderer2, OnDestroy } from '@angular/core';
 import { AppSettings } from '../../service/app-settings.service';
+import { AuthService } from '../../service/auth.service';
+import { Subscription } from 'rxjs';
+import { Router } from "@angular/router";
 
 declare var slideToggle: any;
 
@@ -12,6 +15,26 @@ export class HeaderComponent implements OnDestroy {
 	@Output() appSidebarEndToggled = new EventEmitter<boolean>();
 	@Output() appSidebarMobileToggled = new EventEmitter<boolean>();
 	@Output() appSidebarEndMobileToggled = new EventEmitter<boolean>();
+	@Output() appSidebarMinifiedToggled = new EventEmitter<boolean>();
+
+	
+	usuario: any = {};
+	userSubscription!: Subscription;
+  
+	constructor(
+	  private renderer: Renderer2, 
+	  public appSettings: AppSettings,
+	  private authService: AuthService,
+	  private router: Router
+	) {
+	  this.userSubscription = this.authService.getUser().subscribe(usuario => {
+		  console.log("Usuario recibido en HeaderComponent:", usuario);
+		
+		  if (usuario) {
+			this.usuario = usuario;
+		  }
+		});
+	}
 	
   toggleAppSidebarMobile() {
 		this.appSidebarMobileToggled.emit(true);
@@ -36,10 +59,20 @@ export class HeaderComponent implements OnDestroy {
 	  this.appSettings.appHeaderMegaMenuMobileToggled = !this.appSettings.appHeaderMegaMenuMobileToggled;
 	}
 
+	toggleAppSidebarMinified() {
+		this.appSidebarMinifiedToggled.emit(true);
+	}
+
+	logout() {
+		this.authService.logout();
+		this.router.navigate(["/login"]); // Redirige al login
+	
+	//    location.reload();
+	}
+
 	ngOnDestroy() {
 	  this.appSettings.appHeaderMegaMenuMobileToggled = false;
 	}
 
-  constructor(private renderer: Renderer2, public appSettings: AppSettings) {
-  }
+
 }

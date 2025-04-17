@@ -1,0 +1,43 @@
+<p>duca-rg works!</p>
+
+<div class="container">
+    <h2>Registro de DUCA</h2>
+  
+    <form [formGroup]="ducaForm" (ngSubmit)="submitForm()">
+      <mat-form-field class="full-width">
+        <mat-label>Número de DUCA</mat-label>
+        <input matInput formControlName="numeroDuca" placeholder="Ingrese el número">
+        <mat-error *ngIf="ducaForm.get('numeroDuca')?.invalid">
+          Número requerido (mínimo 6 caracteres)
+        </mat-error>
+      </mat-form-field>
+  
+      <mat-form-field class="full-width">
+        <mat-label>Tipo de DUCA</mat-label>
+        <mat-select formControlName="tipo">
+          <!-- <mat-option value="Importación">Importación</mat-option>
+          <mat-option value="Exportación">Exportación</mat-option> -->
+        </mat-select>
+      </mat-form-field>
+  
+      <mat-form-field class="full-width">
+        <mat-label>País de Origen</mat-label>
+        <input matInput formControlName="paisOrigen" placeholder="Ingrese el país de origen">
+      </mat-form-field>
+  
+      <mat-form-field class="full-width">
+        <mat-label>País de Destino</mat-label>
+        <input matInput formControlName="paisDestino" placeholder="Ingrese el país de destino">
+      </mat-form-field>
+  
+      <mat-form-field class="full-width">
+        <mat-label>Descripción de la Mercancía</mat-label>
+        <textarea matInput formControlName="descripcionMercancia" rows="3"></textarea>
+      </mat-form-field>
+  
+      <button mat-raised-button color="primary" type="submit" [disabled]="ducaForm.invalid">
+        Enviar DUCA
+      </button>
+    </form>
+  </div>
+  

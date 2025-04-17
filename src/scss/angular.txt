@@ -34,7 +34,7 @@ $color-admin-theme: mat.define-theme((
 
 // Comment out the line below if you want to use the deprecated `color` inputs.
 // @include mat.color-variants-backwards-compatibility($color-admin-theme);
-@import 'material/styles';
+@import 'default/styles';
 
 /* Ng Scrollbar */
 @include media-breakpoint-up(md) {

@@ -12,13 +12,19 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico" />
  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+ <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
 </head>
 <body detect-scroll (onScroll)="handleScroll($event)" class="mat-typography">
   <app-root>
     <!-- BEGIN #loader -->
-		<div id="loader" class="app-loader">
-			<span class="spinner"></span>
+	<div id="loader" class="app-loader">
+		<div class="material-loader">
+		  <svg class="circular" viewBox="25 25 50 50">
+			<circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"></circle>
+		  </svg>
+		  <div class="message">Loading...</div>
 		</div>
+	  </div>
 		<!-- END #loader -->
   </app-root>
 </body>

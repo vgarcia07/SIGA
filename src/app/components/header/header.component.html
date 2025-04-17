@@ -2,6 +2,11 @@
 <div id="header" class="app-header" [attr.data-bs-theme]="this.appSettings.appHeaderInverse ? 'dark' : ''">
   <!-- BEGIN navbar-header -->
   <div class="navbar-header">
+    <button type="button" class="navbar-desktop-toggler" (click)="toggleAppSidebarMinified()">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
     @if (this.appSidebarTwo) {
       <button type="button" class="navbar-mobile-toggler" (click)="toggleAppSidebarEndMobile()">
         <span class="icon-bar"></span>
@@ -9,7 +14,9 @@
         <span class="icon-bar"></span>
       </button>
     }
-    <a href="/" class="navbar-brand"><span class="navbar-logo"></span> <b>Color</b> Admin</a>
+    <a href="/" class="navbar-brand d-flex align-items-center">
+      <img src="../../../assets/img/logo/SIGA_SF.png" alt="SIGA" class="mw-100 rounded" style="height: 55px; margin-left: 0px;">
+    </a>
     @if (this.appSettings.appTopMenu && !this.appSettings.appSidebarNone) {
       <button type="button" class="navbar-mobile-toggler" (click)="toggleAppTopMenuMobile()">
         <span class="fa-stack fa-lg text-inverse">
@@ -86,14 +93,12 @@
 
   <!-- BEGIN nav -->
   <div class="navbar-nav">
-    <div class="navbar-item navbar-form">
-      <form action="" method="POST" name="search">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Enter keyword" />
-          <button type="submit" class="btn btn-search"><i class="fa fa-search"></i></button>
-        </div>
-      </form>
+    <div class="navbar-item">
+      <a href="#" class="navbar-link icon">
+        <i class="material-icons">search</i>
+      </a>
     </div>
+
     <div class="navbar-item dropdown">
       <a href="javascript:;" data-bs-toggle="dropdown" class="navbar-link dropdown-toggle icon">
         <i class="fa fa-bell"></i>
@@ -101,63 +106,35 @@
       </a>
       <div class="dropdown-menu media-list dropdown-menu-end">
         <div class="dropdown-header">NOTIFICATIONS (0)</div>
-        <div class="text-center w-300px py-3">
-          No notification found
-        </div>
-        <div class="dropdown-footer text-center">
-          <a href="javascript:;" class="text-decoration-none">View more</a>
-        </div>
+        <div class="text-center w-300px py-3">No notification found</div>
       </div>
     </div>
-    @if (this.appSettings.appHeaderLanguageBar) {
-      <div class="navbar-item dropdown">
-        <a href="javascript:;" class="navbar-link dropdown-toggle" data-bs-toggle="dropdown">
-          <span class="fi fi-us" title="us"></span>
-          <span class="d-none d-sm-inline ms-1">EN</span> <b class="caret"></b>
-        </a>
-        <div class="dropdown-menu">
-          <a href="javascript:;" class="dropdown-item"><span class="fi fi-us me-2" title="us"></span> English</a>
-          <a href="javascript:;" class="dropdown-item"><span class="fi fi-cn me-2" title="cn"></span> Chinese</a>
-          <a href="javascript:;" class="dropdown-item"><span class="fi fi-jp me-2" title="jp"></span> Japanese</a>
-          <a href="javascript:;" class="dropdown-item"><span class="fi fi-be me-2" title="be"></span> Belgium</a>
-          <div class="dropdown-divider"></div>
-          <a href="javascript:;" class="dropdown-item text-center">more options</a>
-        </div>
-      </div>
-    }
+
     <div class="navbar-item navbar-user dropdown">
       <a href="javascript:;" class="navbar-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
         <div class="image image-icon bg-gray-800 text-gray-600">
-          <i class="fa fa-user"></i>
+          <img *ngIf="usuario?.avatar" [src]="usuario.avatar" alt="" class="rounded-circle" width="40" height="40">
+          <i *ngIf="!usuario?.avatar" class="fa fa-user"></i>
         </div>
-        <span>
-          <span class="d-none d-md-inline">Adam Schwartz</span>
+        <span class="ms-2" *ngIf="usuario">
+          <span>{{ usuario.nombre }}</span>
           <b class="caret"></b>
         </span>
       </a>
+    
+      <!-- 🔻 Menú desplegable -->
       <div class="dropdown-menu dropdown-menu-end me-1">
-        <a href="javascript:;" class="dropdown-item">Edit Profile</a>
+        <a href="javascript:;" class="dropdown-item">Editar Perfil</a>
         <a href="javascript:;" class="dropdown-item d-flex align-items-center">
-          Inbox
+          Bandeja de Entrada
           <span class="badge bg-danger rounded-pill ms-auto pb-4px">2</span>
         </a>
-        <a href="javascript:;" class="dropdown-item">Calendar</a>
-        <a href="javascript:;" class="dropdown-item">Setting</a>
+        <a href="javascript:;" class="dropdown-item">Calendario</a>
+        <a href="javascript:;" class="dropdown-item">Configuración</a>
         <div class="dropdown-divider"></div>
-        <a href="javascript:;" class="dropdown-item">Log Out</a>
+        <a href="javascript:;" class="dropdown-item" (click)="logout()">Cerrar Sesión</a>
       </div>
     </div>
-    @if (this.appSidebarTwo) {
-      <div class="navbar-divider d-none d-md-block"></div>
-    }
-    @if (this.appSidebarTwo) {
-      <div class="navbar-item d-none d-md-block">
-        <a href="javascript:;" (click)="toggleAppSidebarEnd()" class="navbar-link icon">
-          <i class="fa fa-th"></i>
-        </a>
-      </div>
-    }
-  </div>
   <!-- END nav -->
 </div>
 <!-- END #header -->

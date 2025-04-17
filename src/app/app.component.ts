@@ -117,4 +117,6 @@ export class AppComponent implements OnInit {
 		this.appVariables = this.appVariablesService.getAppVariables();
 		this.appVariablesService.variablesReload.emit();
 	}
+
+
 }

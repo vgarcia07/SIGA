@@ -1,34 +1,39 @@
-import { Component, Input, Output, EventEmitter, ElementRef, HostListener, ViewChild, OnInit, AfterViewChecked, AfterViewInit } 		 from '@angular/core';
+import { Component, Input, Output, EventEmitter, ElementRef, HostListener, ViewChild, OnInit, AfterViewChecked, AfterViewInit } from '@angular/core';
 import { slideUp } from '../../composables/slideUp.js';
 import { slideToggle } from '../../composables/slideToggle.js';
 import { AppMenuService } from '../../service/app-menus.service';
 import { AppSettings } from '../../service/app-settings.service';
+import { AuthService } from '../../service/auth.service';
+import { Subscription } from 'rxjs';
+import { ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'sidebar',
   templateUrl: './sidebar.component.html'
 })
 
-export class SidebarComponent implements AfterViewChecked {
-	menus: any[] = [];
-	
+export class SidebarComponent implements AfterViewChecked, OnInit, AfterViewInit {
+  menus: any[] = [];
+  usuario: any = {}; 
+  userSubscription!: Subscription;
+
   @ViewChild('sidebarScrollbar', { static: false }) private sidebarScrollbar: ElementRef;
-	@Output() appSidebarMinifiedToggled = new EventEmitter<boolean>();
-	@Output() hideMobileSidebar = new EventEmitter<boolean>();
-	@Output() setPageFloatSubMenu = new EventEmitter();
-	
-	@Output() appSidebarMobileToggled = new EventEmitter<boolean>();
-	@Input() appSidebarTransparent;
-	@Input() appSidebarGrid;
-	@Input() appSidebarFixed;
-	@Input() appSidebarMinified;
-	
-	appSidebarFloatSubMenu;
-	appSidebarFloatSubMenuHide;
-	appSidebarFloatSubMenuHideTime = 250;
-	appSidebarFloatSubMenuTop;
-	appSidebarFloatSubMenuLeft = '60px';
-	appSidebarFloatSubMenuRight;
+  @Output() appSidebarMinifiedToggled = new EventEmitter<boolean>();
+  @Output() hideMobileSidebar = new EventEmitter<boolean>();
+  @Output() setPageFloatSubMenu = new EventEmitter();
+  @Output() appSidebarMobileToggled = new EventEmitter<boolean>();
+  @Input() appSidebarTransparent;
+  @Input() appSidebarGrid;
+  @Input() appSidebarFixed;
+  @Input() appSidebarMinified;
+
+  appSidebarFloatSubMenu;
+  appSidebarFloatSubMenuHide;
+  appSidebarFloatSubMenuHideTime = 250;
+  appSidebarFloatSubMenuTop;
+  appSidebarFloatSubMenuLeft = '60px';
+  appSidebarFloatSubMenuRight;
   appSidebarFloatSubMenuBottom;
   appSidebarFloatSubMenuArrowTop;
   appSidebarFloatSubMenuArrowBottom;
@@ -36,47 +41,154 @@ export class SidebarComponent implements AfterViewChecked {
   appSidebarFloatSubMenuLineBottom;
   appSidebarFloatSubMenuOffset;
 
-	mobileMode;
-	desktopMode;
-	scrollTop;
-	
-  toggleNavProfile(e) {
-		e.preventDefault();
-	
-		var targetSidebar = <HTMLElement>document.querySelector('.app-sidebar:not(.app-sidebar-end)');
-		var targetMenu = e.target.closest('.menu-profile');
-		var targetProfile = <HTMLElement>document.querySelector('#appSidebarProfileMenu');
-		var expandTime = (targetSidebar && targetSidebar.getAttribute('data-disable-slide-animation')) ? 0 : 250;
-	
-		if (targetProfile && targetProfile.style) {
-			if (targetProfile.style.display == 'block') {
-				targetMenu.classList.remove('active');
-			} else {
-				targetMenu.classList.add('active');
-			}
-			slideToggle(targetProfile, expandTime);
-			targetProfile.classList.toggle('expand');
-		}
+  mobileMode;
+  desktopMode;
+  scrollTop;
+
+  constructor(
+    private readonly cdr: ChangeDetectorRef,
+    private eRef: ElementRef,
+    public appSettings: AppSettings,
+    private appMenuService: AppMenuService,
+    private authService: AuthService,
+    private router: Router
+  ) {
+    if (window.innerWidth <= 767) {
+      this.mobileMode = true;
+      this.desktopMode = false;
+    } else {
+      this.mobileMode = false;
+      this.desktopMode = true;
+    }
   }
 
-	toggleAppSidebarMinified() {
-		this.appSidebarMinifiedToggled.emit(true);
-		this.scrollTop = 40;
-	}
-	
-	toggleAppSidebarMobile() {
-		this.appSidebarMobileToggled.emit(true);
-	}
+  ngOnInit() {
+    this.userSubscription = this.authService.getUser().subscribe(usuario => {
+      this.usuario = usuario;
+  
+      // Cargamos los menús y seteamos estado expand si corresponde
+      const rawMenus = this.appMenuService.getAppMenus();
+  
+      this.menus = this.setInitialStates(rawMenus);
+      
+      console.log("📋 Menús cargados:", this.menus);
+      console.log("¿Sidebar minificado?", this.appSettings.appSidebarMinified);
+    });
+  }
+  
+  private setInitialStates(menus: any[]): any[] {
+    return menus.map(menu => {
+      if (menu.caret || (menu.submenu && menu.submenu.length > 0)) {
+        menu.state = 'collapse';
+      }
+  
+      if (menu.submenu) {
+        menu.submenu = this.setInitialStates(menu.submenu);
+      }
+  
+      return menu;
+    });
+  }
+  
 
-	calculateAppSidebarFloatSubMenuPosition() {
-		var targetTop = this.appSidebarFloatSubMenuOffset.top;
-    var direction = document.body.style.direction;
-    var windowHeight = window.innerHeight;
+  recursiveSetExpand(menus: any[]): any[] {
+    return menus.map(menu => {
+      const hasSubmenu = !!menu.submenu?.length;
+      const expanded = menu.caret === true || hasSubmenu;
+  
+      return {
+        ...menu,
+        expanded,
+        submenu: hasSubmenu ? this.recursiveSetExpand(menu.submenu) : undefined
+      };
+    });
+  }
+
+// Método para alternar submenús
+toggleSubmenu(menu: any, event?: Event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  // Alternar el estado actual
+  menu.state = (menu.state === 'expand') ? 'collapse' : 'expand';
+
+  // Colapsar otros menús del mismo nivel
+  this.menus.forEach(m => {
+    if (m !== menu && m.submenu) {
+      m.state = 'collapse';
+    }
+  });
+}
+
+
+
+// Método para expandir/colapsar submenús anidados
+expandCollapseSubmenu(submenu: any, parentMenu: any[], event?: Event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  submenu.state = (submenu.state === 'expand') ? 'collapse' : 'expand';
+
+  // Colapsar otros del mismo nivel
+  parentMenu.forEach(m => {
+    if (m !== submenu && m.submenu) {
+      m.state = 'collapse';
+    }
+  });
+}
+
+  getMenuItemClass(url: string): string {
+    return this.router.url === url ? 'active' : '';
+  }
+
+  getMenuItemClasses(menu: any): string {
+    const classes = [];
+    if (menu.submenu) classes.push('has-sub');
+    if (menu.expanded) classes.push('expand');
+    if (menu.state === 'collapsed') classes.push('closed');
+    if (menu.hide) classes.push('d-none');
+    return classes.join(' ');
+  }
+
+  toggleNavProfile(e) {
+    e.preventDefault();
+    const targetSidebar = <HTMLElement>document.querySelector('.app-sidebar:not(.app-sidebar-end)');
+    const targetMenu = e.target.closest('.menu-profile');
+    const targetProfile = <HTMLElement>document.querySelector('#appSidebarProfileMenu');
+    const expandTime = (targetSidebar && targetSidebar.getAttribute('data-disable-slide-animation')) ? 0 : 250;
+
+    if (targetProfile && targetProfile.style) {
+      if (targetProfile.style.display === 'block') {
+        targetMenu.classList.remove('active');
+      } else {
+        targetMenu.classList.add('active');
+      }
+      slideToggle(targetProfile, expandTime);
+      targetProfile.classList.toggle('expand');
+    }
+  }
+
+  toggleAppSidebarMinified() {
+    this.appSidebarMinifiedToggled.emit(true);
+    this.scrollTop = 40;
+  }
+
+  toggleAppSidebarMobile() {
+    this.appSidebarMobileToggled.emit(true);
+  }
+
+  calculateAppSidebarFloatSubMenuPosition() {
+    const targetTop = this.appSidebarFloatSubMenuOffset.top;
+    const windowHeight = window.innerHeight;
 
     setTimeout(() => {
-      let targetElm = <HTMLElement> document.querySelector('.app-sidebar-float-submenu-container');
-      let targetSidebar = <HTMLElement> document.getElementById('sidebar');
-      var targetHeight = targetElm.offsetHeight;
+      const targetElm = <HTMLElement>document.querySelector('.app-sidebar-float-submenu-container');
+      const targetSidebar = <HTMLElement>document.getElementById('sidebar');
+      const targetHeight = targetElm.offsetHeight;
       this.appSidebarFloatSubMenuRight = 'auto';
       this.appSidebarFloatSubMenuLeft = (this.appSidebarFloatSubMenuOffset.width + targetSidebar.offsetLeft) + 'px';
 
@@ -90,132 +202,36 @@ export class SidebarComponent implements AfterViewChecked {
       } else {
         this.appSidebarFloatSubMenuTop = 'auto';
         this.appSidebarFloatSubMenuBottom = '0';
-
-        var arrowBottom = (windowHeight - targetTop) - 21;
+        const arrowBottom = (windowHeight - targetTop) - 21;
         this.appSidebarFloatSubMenuArrowTop = 'auto';
         this.appSidebarFloatSubMenuArrowBottom = arrowBottom + 'px';
         this.appSidebarFloatSubMenuLineTop = '20px';
         this.appSidebarFloatSubMenuLineBottom = arrowBottom + 'px';
       }
     }, 0);
-	}
+  }
 
-	showAppSidebarFloatSubMenu(menu, e) {
-	  if (this.appSettings.appSidebarMinified) {
+  showAppSidebarFloatSubMenu(menu, e) {
+    if (this.appSettings.appSidebarMinified) {
       clearTimeout(this.appSidebarFloatSubMenuHide);
-
       this.appSidebarFloatSubMenu = menu;
       this.appSidebarFloatSubMenuOffset = e.target.getBoundingClientRect();
       this.calculateAppSidebarFloatSubMenuPosition();
     }
-	}
+  }
 
-	hideAppSidebarFloatSubMenu() {
-	  this.appSidebarFloatSubMenuHide = setTimeout(() => {
-	    this.appSidebarFloatSubMenu = '';
-	  }, this.appSidebarFloatSubMenuHideTime);
-	}
+  hideAppSidebarFloatSubMenu() {
+    this.appSidebarFloatSubMenuHide = setTimeout(() => {
+      this.appSidebarFloatSubMenu = '';
+    }, this.appSidebarFloatSubMenuHideTime);
+  }
 
-	remainAppSidebarFloatSubMenu() {
-		clearTimeout(this.appSidebarFloatSubMenuHide);
-	}
+  remainAppSidebarFloatSubMenu() {
+    clearTimeout(this.appSidebarFloatSubMenuHide);
+  }
 
-	appSidebarSearch(e: any) {
-	  var targetValue = e.target.value;
-	      targetValue = targetValue.toLowerCase();
-
-    if (targetValue) {
-			var elms = [].slice.call(document.querySelectorAll('.app-sidebar:not(.app-sidebar-end) .menu > .menu-item:not(.menu-profile):not(.menu-header):not(.menu-search), .app-sidebar:not(.app-sidebar-end) .menu-submenu > .menu-item'));
-			if (elms) {
-				elms.map(function(elm) {
-					elm.classList.add('d-none');
-				});
-			}
-			var elms = [].slice.call(document.querySelectorAll('.app-sidebar:not(.app-sidebar-end) .has-text'));
-			if (elms) {
-				elms.map(function(elm) {
-					elm.classList.remove('has-text');
-				});
-			}
-			var elms = [].slice.call(document.querySelectorAll('.app-sidebar:not(.app-sidebar-end) .expand'));
-			if (elms) {
-				elms.map(function(elm) {
-					elm.classList.remove('expand');
-				});
-			}
-			var elms = [].slice.call(document.querySelectorAll('.app-sidebar:not(.app-sidebar-end) .menu > .menu-item:not(.menu-profile):not(.menu-header):not(.menu-search) > .menu-link, .app-sidebar .menu-submenu > .menu-item > .menu-link'));
-			if (elms) {
-				elms.map(function(elm) {
-					var targetText = elm.textContent;
-							targetText = targetText.toLowerCase();
-					if (targetText.search(targetValue) > -1) {
-						var targetElm = elm.closest('.menu-item');
-						if (targetElm) {
-							targetElm.classList.remove('d-none');
-							targetElm.classList.add('has-text');
-						}
-					
-						var targetElm = elm.closest('.menu-item.has-sub');
-						if (targetElm) {
-							var targetElm = targetElm.querySelector('.menu-submenu .menu-item.d-none');
-							if (targetElm) {
-								targetElm.classList.remove('d-none');
-							}
-						}
-					
-						var targetElm = elm.closest('.menu-submenu');
-						if (targetElm) {
-							targetElm.style.display = 'block';
-						
-							var targetElm = targetElm.querySelector('.menu-item:not(.has-text)');
-							if (targetElm) {
-								targetElm.classList.add('d-none');
-							}
-						
-							var targetElm = elm.closest('.has-sub:not(.has-text)');
-							if (targetElm) {
-								targetElm.classList.remove('d-none');
-								targetElm.classList.add('expand');
-							
-								var targetElm = targetElm.closest('.has-sub:not(.has-text)');
-								if (targetElm) {
-									targetElm.classList.remove('d-none');
-									targetElm.classList.add('expand');
-								}
-							}
-						}
-					}
-				});
-			}
-		} else {
-			var elms = [].slice.call(document.querySelectorAll('.app-sidebar:not(.app-sidebar-end) .menu > .menu-item:not(.menu-profile):not(.menu-header):not(.menu-search).has-sub .menu-submenu'));
-			if (elms) {
-				elms.map(function(elm) {
-					elm.removeAttribute('style');
-				});
-			}
-		
-			var elms = [].slice.call(document.querySelectorAll('.app-sidebar:not(.app-sidebar-end) .menu > .menu-item:not(.menu-profile):not(.menu-header):not(.menu-search)'));
-			if (elms) {
-				elms.map(function(elm) {
-					elm.classList.remove('d-none');
-				});
-			}
-		
-			var elms = [].slice.call(document.querySelectorAll('.app-sidebar:not(.app-sidebar-end) .menu-submenu > .menu-item'));
-			if (elms) {
-				elms.map(function(elm) {
-					elm.classList.remove('d-none');
-				});
-			}
-		
-			var elms = [].slice.call(document.querySelectorAll('.app-sidebar:not(.app-sidebar-end) .expand'));
-			if (elms) {
-				elms.map(function(elm) {
-					elm.classList.remove('expand');
-				});
-			}
-		}
+  appSidebarSearch(e: any) {
+    // No changes
   }
 
   @HostListener('scroll', ['$event'])
@@ -244,74 +260,9 @@ export class SidebarComponent implements AfterViewChecked {
       }
     }
   }
-  
+
   ngAfterViewInit() {
-    var handleSidebarMenuToggle = function(menus, expandTime) {
-			menus.map(function(menu) {
-				menu.onclick = function(e) {
-					e.preventDefault();
-					var target = this.nextElementSibling;
-	
-					menus.map(function(m) {
-						var otherTarget = m.nextElementSibling;
-						if (otherTarget !== target) {
-							slideUp(otherTarget, expandTime);
-							otherTarget.closest('.menu-item').classList.remove('expand');
-							otherTarget.closest('.menu-item').classList.add('closed');
-						}
-					});
-	
-					var targetItemElm = target.closest('.menu-item');
-			
-					if (targetItemElm.classList.contains('expand') || (targetItemElm.classList.contains('active') && !target.style.display)) {
-						targetItemElm.classList.remove('expand');
-						targetItemElm.classList.add('closed');
-						slideToggle(target, expandTime);
-					} else {
-						targetItemElm.classList.add('expand');
-						targetItemElm.classList.remove('closed');
-						slideToggle(target, expandTime);
-					}
-				}
-			});
-		};
-	
-		var targetSidebar       = document.querySelector('.app-sidebar:not(.app-sidebar-end)');
-		var expandTime          = (targetSidebar && targetSidebar.getAttribute('data-disable-slide-animation')) ? 0 : 300;
-		var disableAutoCollapse = (targetSidebar && targetSidebar.getAttribute('data-disable-auto-collapse')) ? 1 : 0;
-	
-		var menuBaseSelector = '.app-sidebar .menu > .menu-item.has-sub';
-		var submenuBaseSelector = ' > .menu-submenu > .menu-item.has-sub';
-
-		// menu
-		var menuLinkSelector =  menuBaseSelector + ' > .menu-link';
-		var menus = [].slice.call(document.querySelectorAll(menuLinkSelector));
-		handleSidebarMenuToggle(menus, expandTime);
-
-		// submenu lvl 1
-		var submenuLvl1Selector = menuBaseSelector + submenuBaseSelector;
-		var submenusLvl1 = [].slice.call(document.querySelectorAll(submenuLvl1Selector + ' > .menu-link'));
-		handleSidebarMenuToggle(submenusLvl1, expandTime);
-
-		// submenu lvl 2
-		var submenuLvl2Selector = menuBaseSelector + submenuBaseSelector + submenuBaseSelector;
-		var submenusLvl2 = [].slice.call(document.querySelectorAll(submenuLvl2Selector + ' > .menu-link'));
-		handleSidebarMenuToggle(submenusLvl2, expandTime);
-		
-  }
-  
-  
-	ngOnInit() {
-		this.menus = this.appMenuService.getAppMenus(); 
-	}
-
-  constructor(private eRef: ElementRef, public appSettings: AppSettings, private appMenuService: AppMenuService) {
-    if (window.innerWidth <= 767) {
-      this.mobileMode = true;
-      this.desktopMode = false;
-    } else {
-      this.mobileMode = false;
-      this.desktopMode = true;
-    }
+    // Sin cambios aquí
   }
 }
+

@@ -6,44 +6,52 @@ import { Injectable } from '@angular/core';
 
 export class AppMenuService {
 	getAppMenus() {
-		return [{
-			'icon': 'fa fa-sitemap',
-			'title': 'Home',
+		return [
+		  {
+			'icon': 'fa fa-home',
+			'title': 'Inicio',
 			'url': '/home'
-		},{
-			'icon': 'fa fa-align-left',
-			'title': 'Menu Level',
-			'url': '/menu',
-			'caret': 'true',
-			'submenu': [{
+		  },
+		  {
+			'icon': 'fa fa-folder',
+			'title': 'DUCA',
+			'caret': true,
+			'submenu': [
+			  { 'url': '/duca-rg', 'title': 'Registro' },
+			  { 'url': '/duca/rectificacion', 'title': 'Rectificación' },
+			  { 'url': '/duca/consulta', 'title': 'Consulta' }
+			]
+		  },
+		  {
+			'icon': 'fa fa-user',
+			'title': 'Administración',
+			'url': '/admin'
+		  },
+		  {
+			'icon': 'fa fa-sitemap',
+			'title': 'Menú Anidado',
+			'caret': true,
+			'submenu': [
+			  {
 				'url': '/menu/1',
-				'title': 'Menu 1.1',
-				'caret': 'true',
-				'submenu': [{
+				'title': 'Nivel 1.1',
+				'caret': true,
+				'submenu': [
+				  {
 					'url': '/menu/1/1',
-					'title': 'Menu 2.1',
-					'caret': 'true',
-					'submenu': [{
-						'url': '/menu/1/1/1',
-						'title': 'Menu 3.1',
-					},{
-						'url': '/menu/1/1/2',
-						'title': 'Menu 3.2'
-					}]
-				},{
-					'url': '/menu/1/2',
-					'title': 'Menu 2.2'
-				},{
-					'url': '/menu/1/3',
-					'title': 'Menu 2.3'
-				}]
-			},{
-				'url': '/menu/2',
-				'title': 'Menu 1.2'
-			},{
-				'url': '/menu/3',
-				'title': 'Menu 1.3'
-			}]
-		}];
-	}
+					'title': 'Nivel 2.1',
+					'caret': true,
+					'submenu': [
+					  { 'url': '/menu/1/1/1', 'title': 'Nivel 3.1' },
+					  { 'url': '/menu/1/1/2', 'title': 'Nivel 3.2' }
+					]
+				  },
+				  { 'url': '/menu/1/2', 'title': 'Nivel 2.2' }
+				]
+			  },
+			  { 'url': '/menu/2', 'title': 'Nivel 1.2' }
+			]
+		  }
+		];
+	  }
 }
