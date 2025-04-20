@@ -121,8 +121,14 @@
 			& .menu-profile-info {
 				font-size: $font-size-lg;
 				position: relative;
-				color: #4b3c82; // color del nombre de usuario (morado azulado oscuro)
+				//color: #4b3c82; // color del nombre de usuario (morado azulado oscuro)
 				text-shadow: 0 0 4px rgba(255, 255, 255, 0.3); // leve resplandor blanco
+				font-family: 'Roboto', sans-serif; // Familia de fuente
+				font-style: normal;              // Estilo normal
+				font-weight: 500;                // Peso 500
+				color: rgb(255, 255, 255);       // Color blanco
+				font-size: 14px;                 // Tamaño de fuente
+				line-height: 21px;               // Altura de línea
 
 				& small {
 					display: block;
@@ -226,6 +232,12 @@
 				align-items: flex-start;
 				font-weight: var(--#{$prefix}app-sidebar-menu-link-font-weight);
 				background: var(--#{$prefix}app-sidebar-menu-link-bg);
+				font-family: 'Roboto', sans-serif; // Familia de fuente
+				font-style: normal;              // Estilo normal
+				font-weight: 500;                // Peso 500
+				color: rgb(255, 255, 255);       // Color blanco
+				font-size: 13px;                 // Tamaño de fuente
+				line-height: 20px;               // Altura de línea				
 				
 				& .menu-text {
 					flex: 1;

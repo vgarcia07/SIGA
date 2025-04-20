@@ -27,6 +27,31 @@
         </a>
       </div>
 
+      <!-- Menú expandible de Settings -->
+      @if (!appSettings.appSidebarSearch) {
+        <div id="appSidebarProfileMenu" class="collapse">
+          <div class="menu-item pt-5px">
+            <a href="javascript:;" class="menu-link">
+              <div class="menu-icon"><i class="fa fa-cog"></i></div>
+              <div class="menu-text">Ajustes</div>
+            </a>
+          </div>
+          <div class="menu-item">
+            <a href="javascript:;" class="menu-link">
+              <div class="menu-icon"><i class="fa fa-pencil-alt"></i></div>
+              <div class="menu-text">Notificaciones</div>
+            </a>
+          </div>
+          <div class="menu-item pb-5px">
+            <a href="javascript:;" class="menu-link">
+              <div class="menu-icon"><i class="fa fa-question-circle"></i></div>
+              <div class="menu-text">Ayuda</div>
+            </a>
+          </div>
+          <div class="menu-divider m-0"></div>
+        </div>
+      }
+
       <div class="menu-divider m-0"></div>
     </div>
     <ng-container *ngTemplateOutlet="sidebarNav"></ng-container>
