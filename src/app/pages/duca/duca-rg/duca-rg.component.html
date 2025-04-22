@@ -1,42 +1,159 @@
+<div class="content">
+  <!-- begin breadcrumb -->
+  <ol class="breadcrumb float-xl-end">
+    <li class="breadcrumb-item"><a href="javascript:;">Home</a></li>
+    <li class="breadcrumb-item"><a href="javascript:;">DUCA</a></li>
+    <li class="breadcrumb-item active"><a href="javascript:;">Registro</a></li>
+  </ol>
+  <!-- end breadcrumb -->
 
-<div class="container">
-    <h2>Registro de DUCA</h2>
-  
-    <form [formGroup]="ducaForm" (ngSubmit)="submitForm()">
-      <mat-form-field class="full-width">
-        <mat-label>Número de DUCA</mat-label>
-        <input matInput formControlName="numeroDuca" placeholder="Ingrese el número">
-        <mat-error *ngIf="ducaForm.get('numeroDuca')?.invalid">
-          Número requerido (mínimo 6 caracteres)
-        </mat-error>
-      </mat-form-field>
-  
-      <mat-form-field class="full-width">
-        <mat-label>Tipo de DUCA</mat-label>
-        <mat-select formControlName="tipo">
-          <!-- <mat-option value="Importación">Importación</mat-option>
-          <mat-option value="Exportación">Exportación</mat-option> -->
-        </mat-select>
-      </mat-form-field>
-  
-      <mat-form-field class="full-width">
-        <mat-label>País de Origen</mat-label>
-        <input matInput formControlName="paisOrigen" placeholder="Ingrese el país de origen">
-      </mat-form-field>
-  
-      <mat-form-field class="full-width">
-        <mat-label>País de Destino</mat-label>
-        <input matInput formControlName="paisDestino" placeholder="Ingrese el país de destino">
-      </mat-form-field>
-  
-      <mat-form-field class="full-width">
-        <mat-label>Descripción de la Mercancía</mat-label>
-        <textarea matInput formControlName="descripcionMercancia" rows="3"></textarea>
-      </mat-form-field>
-  
-      <button mat-raised-button color="primary" type="submit" [disabled]="ducaForm.invalid">
-        Enviar DUCA
-      </button>
-    </form>
+  <!-- begin page-header -->
+  <h1 class="page-header">Registro de DUCA <small>Complete los campos para registrar un DUCA</small></h1>
+  <!-- end page-header -->
+
+  <!-- begin panel -->
+  <div class="panel">
+    <div class="panel-heading bg-dark text-white">
+      <h4 class="panel-title">Formulario de Registro</h4>
+      <div class="panel-heading-btn">
+        <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-default"><i class="fa fa-expand"></i></a>
+        <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-success"><i class="fa fa-redo"></i></a>
+        <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-warning"><i class="fa fa-minus"></i></a>
+        <a href="javascript:;" class="btn btn-xs btn-icon btn-circle btn-danger"><i class="fa fa-times"></i></a>
+      </div>
+    </div>
+    <div class="panel-body">
+      <form [formGroup]="ducaForm" (ngSubmit)="submitForm()">
+        <!-- Campo Declarante -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="declarante" class="form-label">Declarante</label>
+            <input id="declarante" type="text" class="form-control text-uppercase" formControlName="declarante" disabled>
+          </div>
+          <div class="col-md-6">
+            <label for="aduanaDespacho" class="form-label">Aduana de Despacho</label>
+            <select id="aduanaDespacho" class="form-select text-uppercase" formControlName="aduanaDespacho">
+              <option *ngFor="let aduana of aduanas" [value]="aduana">{{ aduana }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Campo Régimen Aduanero -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="regimenAduanero" class="form-label">Régimen Aduanero</label>
+            <select id="regimenAduanero" class="form-select text-uppercase" formControlName="regimenAduanero">
+              <option *ngFor="let regimen of regimenesAduaneros" [value]="regimen">{{ regimen }}</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="rtnImportadorExportador" class="form-label">RTN Importador/Exportador</label>
+            <input id="rtnImportadorExportador" type="text" class="form-control text-uppercase" formControlName="rtnImportadorExportador">
+          </div>
+        </div>
+
+        <!-- Campos Importador/Exportador y Agencia Aduanera -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="importadorExportador" class="form-label">Importador/Exportador</label>
+            <input id="importadorExportador" type="text" class="form-control text-uppercase" formControlName="importadorExportador" disabled>
+          </div>
+          <div class="col-md-6">
+            <label for="rtnAgenciaAduanera" class="form-label">RTN Agencia Aduanera</label>
+            <input id="rtnAgenciaAduanera" type="text" class="form-control text-uppercase" formControlName="rtnAgenciaAduanera">
+          </div>
+        </div>
+
+        <!-- Campos Agencia Aduanera y Manifiesto -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="agenciaAduanera" class="form-label">Agencia Aduanera</label>
+            <input id="agenciaAduanera" type="text" class="form-control text-uppercase" formControlName="agenciaAduanera" disabled>
+          </div>
+          <div class="col-md-6">
+            <label for="idManifiestoEntregaRapida" class="form-label">ID Manifiesto Entrega Rápida</label>
+            <input id="idManifiestoEntregaRapida" type="text" class="form-control text-uppercase" formControlName="idManifiestoEntregaRapida">
+          </div>
+        </div>
+
+        <!-- Campos Proveedor/Destinatario -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="nombreProveedorDestinatario" class="form-label">Nombre Proveedor/Destinatario</label>
+            <input id="nombreProveedorDestinatario" type="text" class="form-control text-uppercase" formControlName="nombreProveedorDestinatario">
+          </div>
+          <div class="col-md-6">
+            <label for="contratoProveedorDestinatario" class="form-label">Contrato Proveedor/Destinatario</label>
+            <input id="contratoProveedorDestinatario" type="text" class="form-control text-uppercase" formControlName="contratoProveedorDestinatario">
+          </div>
+        </div>
+
+        <!-- Campos Domicilio y Número Preimpreso -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="domicilioProveedor" class="form-label">Domicilio del Proveedor</label>
+            <input id="domicilioProveedor" type="text" class="form-control text-uppercase" formControlName="domicilioProveedor">
+          </div>
+          <div class="col-md-6">
+            <label for="numeroPreimpreso" class="form-label">Número de Preimpreso</label>
+            <input id="numeroPreimpreso" type="text" class="form-control text-uppercase" formControlName="numeroPreimpreso">
+          </div>
+        </div>
+
+        <!-- Campos Entidad Mediación y Depósito -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="entidadMediacion" class="form-label">Entidad Mediación</label>
+            <input id="entidadMediacion" type="text" class="form-control text-uppercase" formControlName="entidadMediacion">
+          </div>
+          <div class="col-md-6">
+            <label for="depositoAlmacenamiento" class="form-label">Depósito de Almacenamiento</label>
+            <input id="depositoAlmacenamiento" type="text" class="form-control text-uppercase" formControlName="depositoAlmacenamiento">
+          </div>
+        </div>
+
+        <!-- Campos Aduana y País -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="aduanaIngresoSalida" class="form-label">Aduana de Ingreso/Salida</label>
+            <select id="aduanaIngresoSalida" class="form-select text-uppercase" formControlName="aduanaIngresoSalida">
+              <option *ngFor="let aduana of aduanas" [value]="aduana">{{ aduana }}</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="paisOrigen" class="form-label">País de Origen</label>
+            <select id="paisOrigen" class="form-select text-uppercase" formControlName="paisOrigen">
+              <option *ngFor="let pais of paises" [value]="pais">{{ pais }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Campos Forma de Pago y Condición de Entrega -->
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="formaPago" class="form-label">Forma de Pago</label>
+            <select id="formaPago" class="form-select text-uppercase" formControlName="formaPago">
+              <option *ngFor="let forma of formasPago" [value]="forma">{{ forma }}</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label for="condicionEntrega" class="form-label">Condición de Entrega</label>
+            <select id="condicionEntrega" class="form-select text-uppercase" formControlName="condicionEntrega">
+              <option *ngFor="let condicion of condicionesEntrega" [value]="condicion">{{ condicion }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Campo Observaciones -->
+        <div class="mb-3">
+          <label for="observaciones" class="form-label">Observaciones</label>
+          <textarea id="observaciones" class="form-control text-uppercase" formControlName="observaciones" rows="3"></textarea>
+        </div>
+
+        <!-- Botón Enviar -->
+        <button type="submit" class="btn btn-primary" [disabled]="ducaForm.invalid">Enviar DUCA</button>
+      </form>
+    </div>
   </div>
-  
+  <!-- end panel -->
+</div>
