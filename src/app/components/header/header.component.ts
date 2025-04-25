@@ -64,10 +64,8 @@ export class HeaderComponent implements OnDestroy {
 	}
 
 	logout() {
-		this.authService.logout();
-		this.router.navigate(["/login"]); // Redirige al login
-	
-	//    location.reload();
+		this.authService.logout(); // Elimina el token de autenticación
+		this.router.navigate(['/inicio']); // Redirige a la página de inicio de sesión
 	}
 
 	ngOnDestroy() {
